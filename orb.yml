@@ -1,0 +1,84 @@
+version: 2.1
+
+description: "Common CI tasks for Go project."
+
+executors:
+  default:
+    parameters:
+      version:
+        type: string
+        default: "1"
+    docker:
+      - image: golang:<<parameters.version>>
+jobs:
+  build-and-test:
+    parameters:
+      working_dir:
+        description: Working directory for this job
+        type: string
+        default: project
+    executor: default
+    working_directory: /<<parameters.working_dir>>
+    steps:
+      - checkout
+      - build
+      - lint
+      - test
+commands:
+  build:
+    description: Builds source code using go modules, doesn't modify the go mod file
+    steps:
+      - run:
+          name: Build source code
+          command: go build -mod=readonly -v
+  lint:
+    description: Runs golangci-lint toool with predefined linters' config
+    parameters:
+      golangci-lint-version:
+        type: string
+        default: "v1.18.0"
+      golangci-config-version:
+        type: string
+        default: "v1.0.0"
+    steps:
+      - run:
+          name: Download golangci-lint
+          command: |
+            curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(go env GOPATH)/bin v1.18.0
+      - run:
+          name: Download linters' config file
+          command: |
+            wget https://raw.githubusercontent.com/Financial-Times/upp-coding-standard/v1.0.0/golangci-config/.golangci.yml
+      - run:
+          name: Run linters
+          command: golangci-lint run --new-from-rev=$(git rev-parse origin/master) --config .golangci.yml --build-tags=integration
+  test:
+    description: Runs unit and integration tests
+    parameters:
+      test-report-folder:
+        type: string
+        default: "/tmp/test-reports"
+      coverage-report-folder:
+        type: string
+        default: "/tmp/coverage-results"
+    steps:
+      - run:
+          name: Download goveralls and go-junit-report
+          command: |
+            GO111MODULE=off go get github.com/mattn/goveralls
+            GO111MODULE=off go get -u github.com/jstemmer/go-junit-report
+      - run:
+          name: Create test folders
+          command: |
+            mkdir -p <<parameters.test-report-folder>>
+            mkdir -p <<parameters.coverage-report-folder>>
+      - run:
+          name: Run unit and integration tests
+          command: |
+            go test -tags=integration -mod=readonly -race -cover -coverprofile=<<parameters.coverage-report-folder>>/coverage.out ./... | go-junit-report > <<parameters.test-report-folder>>/junit.xml
+      - run:
+          name: Report coverage
+          command: |
+            goveralls -coverprofile=<<parameters.coverage-report-folder>>/coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
+      - store_test_results:
+          path: <<parameters.test-report-folder>>
