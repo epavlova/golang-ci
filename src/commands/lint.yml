@@ -1,0 +1,20 @@
+description: Runs golangci-lint toool with predefined linters' config
+parameters:
+  golangci-lint-version:
+    type: string
+    default: "v1.18.0"
+  golangci-config-version:
+    type: string
+    default: "v1.0.0"
+steps:
+  - run:
+      name: Download golangci-lint
+      command: |
+        curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(go env GOPATH)/bin v1.18.0
+  - run:
+      name: Download linters' config file
+      command: |
+        wget https://raw.githubusercontent.com/Financial-Times/upp-coding-standard/v1.0.0/golangci-config/.golangci.yml
+  - run:
+      name: Run linters
+      command: golangci-lint run --new-from-rev=$(git rev-parse origin/master) --config .golangci.yml --build-tags=integration

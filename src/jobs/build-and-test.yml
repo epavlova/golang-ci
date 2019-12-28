@@ -1,0 +1,16 @@
+parameters:
+  working-dir:
+    description: Working directory for this job
+    type: string
+    default: project
+  executor-name:
+    description: Executor for this job
+    type: executor
+    default: default
+executor: <<parameters.executor-name>>
+working_directory: /<<parameters.working-dir>>
+steps:
+  - checkout
+  - build
+  - lint
+  - test
