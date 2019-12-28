@@ -29,12 +29,16 @@ executors:
 jobs:
   build-and-test:
     parameters:
-      working_dir:
+      working-dir:
         description: Working directory for this job
         type: string
         default: project
-    executor: default
-    working_directory: /<<parameters.working_dir>>
+      executor-name:
+        description: Executor for this job
+        type: executor
+        default: default
+    executor: <<parameters.executor-name>>
+    working_directory: /<<parameters.working-dir>>
     steps:
       - checkout
       - build
