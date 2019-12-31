@@ -25,9 +25,14 @@ workflows:
           requires:
             - orb-tools/pack
 
-      # the following jobs act as integrations tests for this orb
+      # the following jobs act as integrations tests for this orb, we run them and expect not to error
       # they should use the just published dev:alpha version
       - golang-ci/build-and-test:
           name: default-integration-tests
+          requires:
+            - orb-tools/publish-dev
+
+      - golang-ci/docker-build:
+          name: docker-job-integration-tests
           requires:
             - orb-tools/publish-dev
