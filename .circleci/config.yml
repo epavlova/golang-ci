@@ -8,9 +8,13 @@ parameters:
   dev-orb-version:
     default: 'dev:alpha'
     type: string
+  run-integration-tests:
+    type: boolean
+    default: false
 
 workflows:
   lint_pack-validate_publish-dev:
+    unless: << pipeline.parameters.run-integration-tests >>
     jobs:
       - orb-tools/lint
 
@@ -21,7 +25,7 @@ workflows:
       - orb-tools/publish-dev:
           orb-name: epavlova/golang-ci
           context: publish-orbs
-          publish-sha-version: false
+          publish-sha-version: true
           requires:
             - orb-tools/pack
 
@@ -36,3 +40,22 @@ workflows:
           name: docker-job-integration-tests
           requires:
             - orb-tools/publish-dev
+
+      - orb-tools/trigger-integration-tests-workflow:
+          name: trigger-integration-dev
+          context: publish-orbs
+          requires:
+            - docker-job-integration-tests
+
+  prod-release:
+    when: << pipeline.parameters.run-integration-tests >>
+    jobs:
+      - orb-tools/dev-promote-prod-from-commit-subject:
+          orb-name: epavlova/golang-ci
+          context: publish-orbs
+          add-pr-comment: false
+          publish-version-tag: false
+          fail-if-semver-not-indicated: false
+          filters:
+            branches:
+              only: master
