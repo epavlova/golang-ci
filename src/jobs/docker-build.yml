@@ -6,7 +6,7 @@ parameters:
   docker-version:
     description: Version of docker
     type: string
-    default: "18.03"
+    default: "18"
 working_directory: /<<parameters.working-dir>>
 docker:
     - image: docker:<<parameters.docker-version>>
