@@ -52,3 +52,4 @@ workflows:
       - orb-tools/dev-promote-prod-from-git-tag:
           add-pr-comment: false
           orb-name: epavlova/golang-ci
+          required-branch: orb-tools
