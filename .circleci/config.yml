@@ -57,5 +57,5 @@ workflows:
           filters:
             branches:
               ignore: /.*/
-            tags:
-              only: /^(major|minor|patch)-release-v\d+\.\d+\.\d+$/
+#            tags:
+#              only: /^(major|minor|patch)-release-v\d+\.\d+\.\d+$/
