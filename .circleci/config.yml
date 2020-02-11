@@ -50,6 +50,7 @@ workflows:
           orb-name: epavlova/golang-ci
           context: publish-orbs
           add-pr-comment: false
+          perform-branch-check: false
 #          requires:
 #            - default-integration-tests
 #            - docker-job-integration-tests
