@@ -8,19 +8,27 @@ parameters:
   dev-orb-version:
     default: 'dev:alpha'
     type: string
-  run-integration-tests:
-    type: boolean
-    default: false
+
+deploy_tags_and_branches: &deploy_tags_and_branches
+  tags:
+    only: /^(major|minor|patch)-release-v\d+\.\d+\.\d+$/
+
+deploy_only_tags: &deploy_only_tags
+  branches:
+    ignore: /.*/
+  tags:
+    only: /^(major|minor|patch)-release-v\d+\.\d+\.\d+$/
 
 workflows:
-  lint_pack-validate_publish-dev:
-    unless: << pipeline.parameters.run-integration-tests >>
+  test_publish-dev_deploy:
     jobs:
-      - orb-tools/lint
+      - orb-tools/lint:
+          filters: *deploy_tags_and_branches
 
       - orb-tools/pack:
           requires:
             - orb-tools/lint
+          filters: *deploy_tags_and_branches
 
       - orb-tools/publish-dev:
           orb-name: epavlova/golang-ci
@@ -28,34 +36,24 @@ workflows:
           publish-sha-version: true
           requires:
             - orb-tools/pack
+          filters: *deploy_tags_and_branches
 
       # the following jobs act as integrations tests for this orb, we run them and expect not to error
       # they should use the just published dev:alpha version
       - golang-ci/build-and-test:
           name: default-integration-tests
-          requires:
-            - orb-tools/publish-dev
+          filters: *deploy_tags_and_branches
 
       - golang-ci/docker-build:
           name: docker-job-integration-tests
-          requires:
-            - orb-tools/publish-dev
+          filters: *deploy_tags_and_branches
 
-      - orb-tools/trigger-integration-tests-workflow:
-          name: trigger-integration-dev
-          context: publish-orbs
-          requires:
-            - docker-job-integration-tests
-
-  prod-release:
-    when: << pipeline.parameters.run-integration-tests >>
-    jobs:
-      - orb-tools/dev-promote-prod-from-commit-subject:
+      - orb-tools/dev-promote-prod-from-git-tag:
           orb-name: epavlova/golang-ci
           context: publish-orbs
           add-pr-comment: false
-          publish-version-tag: false
-          fail-if-semver-not-indicated: false
-          filters:
-            branches:
-              only: master
+          perform-branch-check: false
+          requires:
+            - default-integration-tests
+            - docker-job-integration-tests
+          filters: *deploy_only_tags
