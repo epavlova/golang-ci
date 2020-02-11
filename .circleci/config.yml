@@ -54,8 +54,8 @@ workflows:
 #          requires:
 #            - default-integration-tests
 #            - docker-job-integration-tests
-#          filters:
-#            branches:
-#              ignore: /.*/
-#            tags:
-#              only: /^(major|minor|patch)-release-v\d+\.\d+\.\d+$/
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^(major|minor|patch)-release-v\d+\.\d+\.\d+$/
