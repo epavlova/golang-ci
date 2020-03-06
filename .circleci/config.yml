@@ -40,20 +40,20 @@ workflows:
 
       # the following jobs act as integrations tests for this orb, we run them and expect not to error
       # they should use the just published dev:alpha version
-      - golang-ci/build-and-test:
-          name: default-integration-tests
-          filters: *deploy_tags_and_branches
-
-      - golang-ci/docker-build:
-          name: docker-job-integration-tests
-          filters: *deploy_tags_and_branches
+#      - golang-ci/build-and-test:
+#          name: default-integration-tests
+#          filters: *deploy_tags_and_branches
+#
+#      - golang-ci/docker-build:
+#          name: docker-job-integration-tests
+#          filters: *deploy_tags_and_branches
 
       - orb-tools/dev-promote-prod-from-git-tag:
           orb-name: epavlova/golang-ci
           context: publish-orbs
           add-pr-comment: false
           perform-branch-check: false
-          requires:
-            - default-integration-tests
-            - docker-job-integration-tests
+#          requires:
+#            - default-integration-tests
+#            - docker-job-integration-tests
           filters: *deploy_only_tags
