@@ -11,13 +11,13 @@ parameters:
 
 deploy_tags_and_branches: &deploy_tags_and_branches
   tags:
-    only: /^(major|minor|patch)-release-v\d+\.\d+\.\d+$/
+    only: /.*/
 
 deploy_only_tags: &deploy_only_tags
   branches:
     ignore: /.*/
   tags:
-    only: /^(major|minor|patch)-release-v\d+\.\d+\.\d+$/
+    only: /.*/
 
 workflows:
   test_publish-dev_deploy:
