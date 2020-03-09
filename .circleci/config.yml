@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   orb-tools: circleci/orb-tools@9.0.0
-  golang-ci: epavlova/golang-ci@1.0.6
+  golang-ci: epavlova/golang-ci@dev:alpha
 
 deploy_tags_and_branches: &deploy_tags_and_branches
   tags:
