@@ -55,11 +55,11 @@ workflows:
       # they should use the just published dev:alpha version
       - golang-ci/build-and-test:
           name: default-integration-tests
-          #filters: *deploy_tags_and_branches
+          filters: *deploy_tags_and_branches
 
       - golang-ci/docker-build:
           name: docker-job-integration-tests
-          #filters: *deploy_tags_and_branches
+          filters: *deploy_tags_and_branches
 
       - orb-tools/dev-promote-prod-from-git-tag:
           orb-name: epavlova/golang-ci
@@ -69,4 +69,4 @@ workflows:
           requires:
             - default-integration-tests
             - docker-job-integration-tests
-          #filters: *deploy_only_tags
+          filters: *deploy_only_tags
